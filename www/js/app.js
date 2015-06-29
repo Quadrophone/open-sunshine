@@ -1,11 +1,4 @@
-// Ionic Starter App
-
-// angular.module is a global place for creating, registering and retrieving Angular modules
-// 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
-// the 2nd parameter is an array of 'requires'
-
-
-angular.module('opensunshine', ['ionic'])
+angular.module('opensunshine', ['ionic', 'ngSanitize'])
     .filter('capitalize', function() {
         return function(input, all) {
             return (!!input) ? input.replace(/([^\W_]+[^\s-]*) */g, function(txt) {
@@ -41,27 +34,45 @@ angular.module('opensunshine', ['ionic'])
 
     var apiKey = '58576aebd9604aefa80483d098c365c7';
 
-
-    $scope.openGoogle = function(link) {
-        $window.open(link, '_system');
-    };
-
-    $scope.otherContributions = function(contributor) {
-        
-        var contributorURL = 'http://transparencydata.com/api/1.0/aggregates/org/' + contributor + '/recipients.json?apikey=' + apiKey + '&callback=JSON_CALLBACK';
-        $http.jsonp(contributorURL).then(function(recipients) {
-            recipients = recipients.data;
-        });
-    }
-
     $scope.politician = {};
 
+    $scope.politicians = {};
+
+
+    $scope.donorDescription = function(donor, politicianIndex, donorIndex) {
+        var year = $scope.politician.year;
+        console.log(year);
+
+        var organizationURL = 'http://transparencydata.com/api/1.0/entities/' + donor + '.json?apikey=' + apiKey + '&callback=JSON_CALLBACK';
+        if (year) {
+            organizationURL += '&cycle=' + year;
+        }
+
+        var otherRecipientsUrl = 'http://transparencydata.com/api/1.0/aggregates/org/' + donor + '/recipients.json?apikey=' + apiKey + '&callback=JSON_CALLBACK';
+        if (year) {
+            otherRecipientsUrl += '&cycle=' + year;
+        }
+        $scope.politicians[politicianIndex].donors[donorIndex] = {};
+
+        $http.jsonp(organizationURL).then(function(organization) {
+            if (organization.data.metadata.bio != undefined) {
+                $scope.politicians[politicianIndex].donors[donorIndex].bio = organization.data.metadata.bio;
+            }
+            if (organization.data.metadata.parent_entity !== null) {
+                $scope.politicians[politicianIndex].donors[donorIndex].parentEntity = organization.data.metadata.parent_entity.name;
+            }
+        });
+
+        $http.jsonp(otherRecipientsUrl).then(function(recipients) {
+            console.log(recipients.data);
+            $scope.politicians[politicianIndex].donors[donorIndex].otherRecipients = recipients.data;
+        });
+    }
 
     $scope.searchPoliticians = function() {
 
         $scope.loading = true;
-
-       
+        $scope.noResults = false;
 
         var name = $scope.politician.name;
         name = encodeURI(name);
@@ -79,6 +90,12 @@ angular.module('opensunshine', ['ionic'])
 
         $http.jsonp(politicianURL).then(function(politicians) {
 
+            if (politicians.data.length < 1) {
+                $scope.loading = false;
+                $scope.noResults = true;
+                return false;
+            }
+
             $scope.politicians = politicians.data;
 
             angular.forEach(politicians.data, function(politician) {
@@ -91,18 +108,19 @@ angular.module('opensunshine', ['ionic'])
                 }
 
                 donorsURL = 'http://transparencydata.com/api/1.0/aggregates/pol/' + politicianID + '/contributors.json?page=1&per_page=1000&apikey=' + apiKey + '&callback=JSON_CALLBACK'
-                console.log(donorsURL);
+
                 if (year) {
                     donorsURL += '&cycle=' + year;
                 }
 
                 $http.jsonp(industriesURL).then(function(industries) {
+
                     politician.industries = industries.data;
                 });
 
                 $http.jsonp(donorsURL).then(function(donors) {
+
                     politician.donors = donors.data;
-                    console.log(donors);
                     $scope.loading = false;
 
                 });

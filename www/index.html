@@ -4,7 +4,10 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
-    <title></title>
+
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' *; style-src 'self' 'unsafe-inline' *; media-src *">
+
+    <title>Open Sunshine</title>
     <link href="lib/ionic/css/ionic.css" rel="stylesheet">
     <!--<link href="css/ionic.material.css" rel="stylesheet">-->
     <link href="css/style.css" rel="stylesheet">
@@ -14,6 +17,7 @@
                 <!-- ionic/angularjs js -->
                 <script src="lib/ionic/js/ionic.bundle.js"></script>
                 <!-- cordova script (this will be a 404 during development) -->
+                <script src="js/angular-sanitize.min.js"></script>
                 <script src="cordova.js"></script>
                 <!-- your app's js -->
                 <script src="js/app.js"></script>
@@ -28,7 +32,7 @@
             </ion-header-bar>
             <ion-content >
             <div class="intro">
-                <p>Enter a politician's name and, optionally, a year, and tap "Search" to see a list of their donors. </p>
+                <p>Enter a politician's name and, optionally, a year, and tap "Search" to see a list of their top 10 donors and industries. </p>
             </div>
 
             <form class="list list-inset" ng-submit="searchPoliticians()">
@@ -42,6 +46,7 @@
                     </div>
 
                     <select name="year" ng-model="politician.year">
+                        <option value="" default="default">All</option>
                         <option value="2008">2008</option>                  
                         <option value="2010">2010</option>
                         <option value="2012">2012</option>
@@ -52,34 +57,50 @@
                     Search
                 </button>
             </form>
+            <div class="no-results" ng-show="noResults"><h4 class="text-center">No Results Found</h4></div>
             <ul class="list politicians">
-                <li class="item" ng-repeat="politician in politicians | orderBy: '-total_received'">
+                <li class="item" ng-repeat="politician in politicians | orderBy: '-total_received'" ng-init="politicianIndex = $index">
+
                     <h2 class="item-divider" ng-click="showDetails = ! showDetails">
                         {{politician.name | capitalize}} ({{politician.party}}
                         <span ng-show="politician.state"> - {{politician.state}}</span>)
                     </h2>
                     <div class="details" ng-show="showDetails">
-
                         <!--<span class="total-contributions">{{politician.total_received | currency}}</span>-->
-
                         <h3 class="item-divider">Top Donors</h3>
                         <ul class="donors">
-                            <li ng-repeat="donor in politician.donors | orderBy: '-donor.total_amount'">
+                            <li ng-repeat="donor in politician.donors | orderBy: '-donor.total_amount'" ng-init="donorIndex = $index">
                                 <div class="info">
                                     <h4>{{donor.name}} 
                                     </h4>
                                     <h5>{{donor.total_amount | currency}}</h5>
                                 </div>
-                                <div class="button-wrapper">
-                                   <a class="other-contributions" href="#" ng-click="otherContributions('{{donor.id}}')"><i class="ion-plus-circled"></i></a>
-                                   <a class="search-donor" href="#" ng-click="openGoogle('http://google.com/search?q={{donor.name | encodeURIComponent}}')"><i class="ion-help-circled"></i></a>
+                                <div class="button-wrapper">                                 
+                                   <a class="search-donor" href="#" ng-click="donorDescription('{{donor.id}}',politicianIndex, donorIndex); showDescription = ! showDescription"><i class="ion-help-circled"></i></a>
                                </div>
-                              
+                            <div class="donor-bio" ng-show="showDescription" ng-bind-html="politicians[politicianIndex].donors[donorIndex].bio">
+                            </div>
+                            <div class="parent-entity" ng-show="showDescription" ng-if="politicians[politicianIndex].donors[donorIndex].parentEntity">
+                            <p class="bold">
+                                {{donor.name}}'s parent entity is {{politicians[politicianIndex].donors[donorIndex].parentEntity}}
+                            </p>
+                            </div>
+                            <div class="other-recipients" ng-show="showDescription">
+                            <h4>{{donor.name}} also donated to:</h4>
+                            <ul class="other-recipients">
+                                <li ng-repeat="recipient in politicians[politicianIndex].donors[donorIndex].otherRecipients">
+                                {{recipient.name}}
+                                <span class="donation-amount">{{recipient.direct_amount | currency}} (direct)</span>
+                                <span class="donation-amount">{{recipient.employee_amount | currency}} (from employees)</span>
+                                </li>
+                            </ul>
+                        </div>
+
                            </li>
                        </ul>
                        <h3 class="item-divider">Donations by Industry</h3>
                        <ul class="industries">
-                        <li  ng-repeat="industry in politician.industries | orderBy: '-industry.amount'">
+                        <li ng-repeat="industry in politician.industries | orderBy: '-industry.amount'">
                             <h4>{{industry.name | capitalize}}</h4>
                             <h5>{{industry.amount | currency}}</h5>
                         </li>
