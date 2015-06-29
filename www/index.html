@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+    <title></title>
+    <link href="lib/ionic/css/ionic.css" rel="stylesheet">
+    <!--<link href="css/ionic.material.css" rel="stylesheet">-->
+    <link href="css/style.css" rel="stylesheet">
+    <!-- IF using Sass (run gulp sass first), then uncomment below and remove the CSS includes above
+                    <link href="css/ionic.app.css" rel="stylesheet">
+                -->
+                <!-- ionic/angularjs js -->
+                <script src="lib/ionic/js/ionic.bundle.js"></script>
+                <!-- cordova script (this will be a 404 during development) -->
+                <script src="cordova.js"></script>
+                <!-- your app's js -->
+                <script src="js/app.js"></script>
+            </head>
+
+            <body ng-app="opensunshine">
+                <ion-pane ng-controller="Sunshine">
+                <div class="overlay" ng-show="loading"><i class="ion-record loader"></i></div>
+
+                <ion-header-bar class="bar-stable">
+                <h1 class="title"><i class="ion-android-sunny"></i>Open Sunshine</h1>
+            </ion-header-bar>
+            <ion-content >
+            <div class="intro">
+                <p>Enter a politician's name and, optionally, a year, and tap "Search" to see a list of their donors. </p>
+            </div>
+
+            <form class="list list-inset" ng-submit="searchPoliticians()">
+                <label class="item item-input">
+                    <i class="icon ion-search placeholder-icon"></i>
+                    <input type="text" ng-model="politician.name" placeholder="Name" required>
+                </label>
+                <label class="item item-input item-select">
+                    <div class="input-label">
+                        Year (optional)
+                    </div>
+
+                    <select name="year" ng-model="politician.year">
+                        <option value="2008">2008</option>                  
+                        <option value="2010">2010</option>
+                        <option value="2012">2012</option>
+                        <option value="2014">2014</option>
+                    </select>
+                </label>
+                <button type="submit" class="button button-energized">
+                    Search
+                </button>
+            </form>
+            <ul class="list politicians">
+                <li class="item" ng-repeat="politician in politicians | orderBy: '-total_received'">
+                    <h2 class="item-divider" ng-click="showDetails = ! showDetails">
+                        {{politician.name | capitalize}} ({{politician.party}}
+                        <span ng-show="politician.state"> - {{politician.state}}</span>)
+                    </h2>
+                    <div class="details" ng-show="showDetails">
+
+                        <!--<span class="total-contributions">{{politician.total_received | currency}}</span>-->
+
+                        <h3 class="item-divider">Top Donors</h3>
+                        <ul class="donors">
+                            <li ng-repeat="donor in politician.donors | orderBy: '-donor.total_amount'">
+                                <div class="info">
+                                    <h4>{{donor.name}} 
+                                    </h4>
+                                    <h5>{{donor.total_amount | currency}}</h5>
+                                </div>
+                                <div class="button-wrapper">
+                                   <a class="other-contributions" href="#" ng-click="otherContributions('{{donor.id}}')"><i class="ion-plus-circled"></i></a>
+                                   <a class="search-donor" href="#" ng-click="openGoogle('http://google.com/search?q={{donor.name | encodeURIComponent}}')"><i class="ion-help-circled"></i></a>
+                               </div>
+                              
+                           </li>
+                       </ul>
+                       <h3 class="item-divider">Donations by Industry</h3>
+                       <ul class="industries">
+                        <li  ng-repeat="industry in politician.industries | orderBy: '-industry.amount'">
+                            <h4>{{industry.name | capitalize}}</h4>
+                            <h5>{{industry.amount | currency}}</h5>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+        </ul>
+    </ion-content>
+</ion-pane>
+</body>
+
+</html>
