@@ -226,11 +226,23 @@ ul.other-recipients li {
     display: block;
 }
 
-@keyframes rotate {
+@-webkit-keyframes rotate {
     0 {
-        transform: rotateY(0deg);
+        -webkit-transform: rotateY(0deg);
+                transform: rotateY(0deg);
     }
     100% {
-        transform: rotateY(360deg);
+        -webkit-transform: rotateY(360deg);
+                transform: rotateY(360deg);
+    }
+}
+@keyframes rotate {
+    0 {
+        -webkit-transform: rotateY(0deg);
+                transform: rotateY(0deg);
+    }
+    100% {
+        -webkit-transform: rotateY(360deg);
+                transform: rotateY(360deg);
     }
 }

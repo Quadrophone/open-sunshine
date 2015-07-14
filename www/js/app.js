@@ -44,6 +44,7 @@ angular.module('opensunshine', ['ionic', 'ngSanitize'])
         console.log(year);
 
         var organizationURL = 'http://transparencydata.com/api/1.0/entities/' + donor + '.json?apikey=' + apiKey + '&callback=JSON_CALLBACK';
+        
         if (year) {
             organizationURL += '&cycle=' + year;
         }
@@ -52,10 +53,12 @@ angular.module('opensunshine', ['ionic', 'ngSanitize'])
         if (year) {
             otherRecipientsUrl += '&cycle=' + year;
         }
+
         $scope.politicians[politicianIndex].donors[donorIndex] = {};
 
         $http.jsonp(organizationURL).then(function(organization) {
-            if (organization.data.metadata.bio != undefined) {
+            if (organization.data.metadata.bio !== undefined) {
+                console.log(organization.data.metadata.bio);
                 $scope.politicians[politicianIndex].donors[donorIndex].bio = organization.data.metadata.bio;
             }
             if (organization.data.metadata.parent_entity !== null) {
