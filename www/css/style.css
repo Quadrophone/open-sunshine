@@ -74,14 +74,8 @@ h1 i {
   background: #FECA2E !important;
   color:#060402!important;
 }
-
-.bar-stable img {
-  margin-left: .75rem;
-  margin-top: .25rem;
-  width: 30px;
-  height: 30px;
-  color: #fff;
-  padding-top: 5px;
+.bar-stable {
+  text-align: center;
 }
 
 .bar-header {
@@ -92,6 +86,8 @@ h1 i {
 
 .intro {
   padding:1rem;
+  font-size:1.2rem;
+  line-height: 1.4em;
 }
 label {
   margin-bottom: 1em !important;

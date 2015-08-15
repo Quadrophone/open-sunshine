@@ -2,13 +2,14 @@
 <widget id="com.ionicframework.opensunshine577979" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
   <name>open-sunshine</name>
   <description>
-        An Ionic Framework and Cordova project.
+        Find out who a politician is receiving donations from.
     </description>
-  <author email="hi@ionicframework" href="http://ionicframework.com/">
-      Ionic Framework Team
+  <author email="james@jamespodles.com" href="http://jamespodles.com/">
+      James Podles
     </author>
   <content src="index.html"/>
-  <access origin="*"/>
+  <access origin="http://fonts.googleapis.com/*"/>
+  <access origin="http://transparencydata.com/*"/>
   <preference name="webviewbounce" value="false"/>
   <preference name="UIWebViewBounce" value="false"/>
   <preference name="DisallowOverscroll" value="true"/>

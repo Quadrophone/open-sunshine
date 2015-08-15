@@ -105,7 +105,7 @@ angular.module('opensunshine', ['ionic', 'ngSanitize'])
 
     $scope.searchPoliticians = function() {
 
-       // cordova.plugins.Keyboard.close();
+        cordova.plugins.Keyboard.close();
 
         $scope.loading = true;
         $scope.noResults = false;
