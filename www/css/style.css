@@ -47,6 +47,7 @@ h1 {
 
 h1 {
   font-weight: 700;
+  text-transform: uppercase;
 
 }
 
@@ -62,10 +63,9 @@ h1 i {
 
 }
 
-.title.title-left {
+.bar .title.title-left {
 
   margin: 0;
-  margin-left: 1rem;
   font-size: 1.3rem !important;
   font-weight: 300;
   letter-spacing: 3px;
@@ -73,6 +73,7 @@ h1 i {
   text-transform: uppercase;
   background: #FECA2E !important;
   color:#060402!important;
+  text-align: center;
 }
 .bar-stable {
   text-align: center;
@@ -221,6 +222,19 @@ ul.other-recipients li {
 
 .donation-amount {
   display: block;
+}
+
+footer {
+  position: fixed;
+  background:#fff;
+  border-top:1px solid #FFC107;
+  bottom:0;
+  left:0;
+  width:100%;
+  text-align:center;
+  padding:.5rem;
+  padding-bottom: 0;
+  box-shadow: -2px 0 8px rgba(100,100,100,.3);
 }
 
 @-webkit-keyframes rotate {

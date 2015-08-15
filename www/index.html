@@ -77,7 +77,7 @@
                     </div>
                     <div class="button-wrapper">  
                        <a class="search-donor" href="#" data-ng-click-once="donorDescription('{{donor.id}}',politicianIndex, donorIndex)" ng-click="showDescription = ! showDescription"><i class="ion-help-circled"></i></a>
-                       
+
                    </div>
                    <div ng-show="showDescription">
                     <div class="donor-bio" ng-bind-html="politicians[politicianIndex].donors[donorIndex].bio">
@@ -112,7 +112,10 @@
 </li>
 </ul>
 </ion-content>
+    <footer><p>Data from OpenSecrets.org and FollowTheMoney.org</p></footer>
+
 </ion-pane>
+
 </body>
 
 </html>
