@@ -15,25 +15,25 @@ angular.module('opensunshine', ['ionic', 'ngSanitize'])
 })
 
 .run(function($ionicPlatform) {
-    $ionicPlatform.ready(function() {
-        if (window.cordova && window.cordova.plugins.Keyboard) {
-            cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
-        }
-        if (window.StatusBar) {
-            StatusBar.styleDefault();
-        }
-    });
-})
-    .directive('ngClickOnce', function(){
+        $ionicPlatform.ready(function() {
+            if (window.cordova && window.cordova.plugins.Keyboard) {
+                cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
+            }
+            if (window.StatusBar) {
+                StatusBar.styleDefault();
+            }
+        });
+    })
+    .directive('ngClickOnce', function() {
         return {
             restrict: "A",
-            link: function(scope, element, attribute){
-                var clickFunction = function(){
+            link: function(scope, element, attribute) {
+                var clickFunction = function() {
                     scope.$eval(attribute.ngClickOnce);
                     scope.$apply();
                     element.unbind("click", clickFunction);
                 };
-                
+
                 element.bind("click", clickFunction);
             }
         };
@@ -48,15 +48,20 @@ angular.module('opensunshine', ['ionic', 'ngSanitize'])
 
     var apiKey = '58576aebd9604aefa80483d098c365c7';
 
+    if (apiKey === '') {
+        alert("You'll need an API key from data.influenceexplorer.com");
+        return;
+    }
+
     $scope.politician = {};
 
     $scope.politicians = {};
 
 
     $scope.donorDescription = function(donorID, politicianIndex, donorIndex) {
-        console.log('DONOR ID: ' + donorID);
-        console.log('DONOR INDEX: ' + donorIndex);
+
         var year = $scope.politician.year;
+
         $scope.loading = true;
 
         var organizationURL = 'http://transparencydata.com/api/1.0/entities/' + donorID + '.json?apikey=' + apiKey + '&callback=JSON_CALLBACK';
@@ -85,14 +90,14 @@ angular.module('opensunshine', ['ionic', 'ngSanitize'])
                 $scope.politicians[politicianIndex].donors[donorIndex].parentEntity = organization.metadata.parent_entity.name;
             }
         }).error(function(data, status, headers, config) {
-            alert("Error connecting to server to get organization");
+            alert("Error connecting to server");
 
         });
 
         $http.jsonp(otherRecipientsUrl).success(function(recipients) {
             $scope.politicians[politicianIndex].donors[donorIndex].otherRecipients = recipients;
         }).error(function(data, status, headers, config) {
-            alert("Error connecting to server to get other recipients");
+            alert("Error connecting to server");
             $scope.loading = false;
 
         });
@@ -100,12 +105,14 @@ angular.module('opensunshine', ['ionic', 'ngSanitize'])
 
     $scope.searchPoliticians = function() {
 
+       // cordova.plugins.Keyboard.close();
+
         $scope.loading = true;
         $scope.noResults = false;
 
+
         var name = $scope.politician.name;
         name = encodeURI(name);
-
 
         var year = $scope.politician.year;
 
@@ -174,16 +181,3 @@ angular.module('opensunshine', ['ionic', 'ngSanitize'])
         });
     };
 });
-
-/*         
-                politicianID = result.data[0].id;
-                console.log(result);
-                $scope.politicians = data;
-
-
-                industriesURL = 'http://transparencydata.com/api/1.0/aggregates/pol/' + politicianID + '/contributors/industries.json?cycle=2012&limit=100&apikey=58576aebd9604aefa80483d098c365c7&callback=JSON_CALLBACK';
-                $http.jsonp(industriesURL).then(function(industries) {
-                   $scope.industries = industries.data;
-                });
-
-*/
