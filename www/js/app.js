@@ -4,7 +4,7 @@ angular.module('opensunshine', ['ionic', 'ngSanitize'])
             return (!!input) ? input.replace(/([^\W_]+[^\s-]*) */g, function(txt) {
                 return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
             }) : '';
-        }
+        };
     })
 
 .filter('encodeURIComponent', function() {
@@ -24,6 +24,20 @@ angular.module('opensunshine', ['ionic', 'ngSanitize'])
         }
     });
 })
+    .directive('ngClickOnce', function(){
+        return {
+            restrict: "A",
+            link: function(scope, element, attribute){
+                var clickFunction = function(){
+                    scope.$eval(attribute.ngClickOnce);
+                    scope.$apply();
+                    element.unbind("click", clickFunction);
+                };
+                
+                element.bind("click", clickFunction);
+            }
+        };
+    })
 
 .config(['$httpProvider', function($httpProvider) {
     $httpProvider.defaults.useXDomain = true;
@@ -39,38 +53,50 @@ angular.module('opensunshine', ['ionic', 'ngSanitize'])
     $scope.politicians = {};
 
 
-    $scope.donorDescription = function(donor, politicianIndex, donorIndex) {
+    $scope.donorDescription = function(donorID, politicianIndex, donorIndex) {
+        console.log('DONOR ID: ' + donorID);
+        console.log('DONOR INDEX: ' + donorIndex);
         var year = $scope.politician.year;
-        console.log(year);
+        $scope.loading = true;
 
-        var organizationURL = 'http://transparencydata.com/api/1.0/entities/' + donor + '.json?apikey=' + apiKey + '&callback=JSON_CALLBACK';
-        
-        if (year) {
+        var organizationURL = 'http://transparencydata.com/api/1.0/entities/' + donorID + '.json?apikey=' + apiKey + '&callback=JSON_CALLBACK';
+
+        if (year !== undefined) {
             organizationURL += '&cycle=' + year;
         }
 
-        var otherRecipientsUrl = 'http://transparencydata.com/api/1.0/aggregates/org/' + donor + '/recipients.json?apikey=' + apiKey + '&callback=JSON_CALLBACK';
-        if (year) {
+        var otherRecipientsUrl = 'http://transparencydata.com/api/1.0/aggregates/org/' + donorID + '/recipients.json?apikey=' + apiKey + '&callback=JSON_CALLBACK';
+
+        if (year !== undefined) {
             otherRecipientsUrl += '&cycle=' + year;
         }
+        console.log(otherRecipientsUrl);
 
-        $scope.politicians[politicianIndex].donors[donorIndex] = {};
+        //$scope.politicians[politicianIndex].donors[donorIndex] = {};
 
-        $http.jsonp(organizationURL).then(function(organization) {
-            if (organization.data.metadata.bio !== undefined) {
-                console.log(organization.data.metadata.bio);
-                $scope.politicians[politicianIndex].donors[donorIndex].bio = organization.data.metadata.bio;
+        $http.jsonp(organizationURL).success(function(organization) {
+            $scope.loading = false;
+
+            if (organization.metadata.bio !== undefined) {
+                console.log(organization.metadata.bio);
+                $scope.politicians[politicianIndex].donors[donorIndex].bio = organization.metadata.bio;
             }
-            if (organization.data.metadata.parent_entity !== null) {
-                $scope.politicians[politicianIndex].donors[donorIndex].parentEntity = organization.data.metadata.parent_entity.name;
+            if (organization.metadata.parent_entity !== null) {
+                $scope.politicians[politicianIndex].donors[donorIndex].parentEntity = organization.metadata.parent_entity.name;
             }
+        }).error(function(data, status, headers, config) {
+            alert("Error connecting to server to get organization");
+
         });
 
-        $http.jsonp(otherRecipientsUrl).then(function(recipients) {
-            console.log(recipients.data);
-            $scope.politicians[politicianIndex].donors[donorIndex].otherRecipients = recipients.data;
+        $http.jsonp(otherRecipientsUrl).success(function(recipients) {
+            $scope.politicians[politicianIndex].donors[donorIndex].otherRecipients = recipients;
+        }).error(function(data, status, headers, config) {
+            alert("Error connecting to server to get other recipients");
+            $scope.loading = false;
+
         });
-    }
+    };
 
     $scope.searchPoliticians = function() {
 
@@ -91,18 +117,21 @@ angular.module('opensunshine', ['ionic', 'ngSanitize'])
         var politicianURL = 'http://transparencydata.com/api/1.0/entities.json?search=' + name + '&type=politician&apikey=' + apiKey + '&callback=JSON_CALLBACK';
 
 
-        $http.jsonp(politicianURL).then(function(politicians) {
+        $http.jsonp(politicianURL).success(function(politicians) {
+            console.log(politicians);
+            console.log(politicians.length);
+            $scope.politicians = politicians;
 
-            if (politicians.data.length < 1) {
+            if (politicians.length < 1) {
                 $scope.loading = false;
                 $scope.noResults = true;
                 return false;
             }
 
-            $scope.politicians = politicians.data;
-
-            angular.forEach(politicians.data, function(politician) {
+            angular.forEach(politicians, function(politician) {
                 politician.name = politician.name.replace('(D)', '').replace('(R)', '');
+                console.log(politician.name);
+                console.log(politician.id);
                 politicianID = politician.id;
                 industriesURL = 'http://transparencydata.com/api/1.0/aggregates/pol/' + politicianID + '/contributors/industries.json?page=1&per_page=1000&apikey=' + apiKey + '&callback=JSON_CALLBACK';
 
@@ -110,29 +139,40 @@ angular.module('opensunshine', ['ionic', 'ngSanitize'])
                     industriesURL += '&cycle=' + year;
                 }
 
-                donorsURL = 'http://transparencydata.com/api/1.0/aggregates/pol/' + politicianID + '/contributors.json?page=1&per_page=1000&apikey=' + apiKey + '&callback=JSON_CALLBACK'
+                donorsURL = 'http://transparencydata.com/api/1.0/aggregates/pol/' + politicianID + '/contributors.json?page=1&per_page=1000&apikey=' + apiKey + '&callback=JSON_CALLBACK';
 
                 if (year) {
                     donorsURL += '&cycle=' + year;
                 }
 
-                $http.jsonp(industriesURL).then(function(industries) {
-
-                    politician.industries = industries.data;
-                });
-
-                $http.jsonp(donorsURL).then(function(donors) {
-
-                    politician.donors = donors.data;
+                $http.jsonp(industriesURL).success(function(industries) {
+                    console.log('industries');
+                    console.log(industries);
+                    politician.industries = industries;
+                }).error(function(data, status, headers, config) {
+                    alert("Error connecting to server");
                     $scope.loading = false;
 
                 });
 
+                $http.jsonp(donorsURL).success(function(donors) {
+                    console.log('donors');
+                    console.log(donors);
+
+                    politician.donors = donors;
+                    $scope.loading = false;
+                }).error(function(data, status, headers, config) {
+                    alert("Error connecting to server");
+                    $scope.loading = false;
+
+                });
             });
+        }).error(function(data, status, headers, config) {
+            alert("Error connecting to server");
+            $scope.loading = false;
+
         });
-
     };
-
 });
 
 /*         

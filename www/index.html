@@ -75,18 +75,18 @@
                                     </h4>
                                     <h5>{{donor.total_amount | currency}}</h5>
                                 </div>
-                                <div class="button-wrapper">                                 
+                                <div class="button-wrapper">  
                                    <a class="search-donor" href="#" ng-click="donorDescription('{{donor.id}}',politicianIndex, donorIndex); showDescription = ! showDescription"><i class="ion-help-circled"></i></a>
                                </div>
                             <div class="donor-bio" ng-show="showDescription" ng-bind-html="politicians[politicianIndex].donors[donorIndex].bio">
                             </div>
-                            <div class="parent-entity" ng-show="showDescription" ng-if="politicians[politicianIndex].donors[donorIndex].parentEntity">
+                            <div class="parent-entity" ng-show="donorDescription" ng-if="politicians[politicianIndex].donors[donorIndex].parentEntity">
                             <p class="bold">
                                 {{donor.name}}'s parent entity is {{politicians[politicianIndex].donors[donorIndex].parentEntity}}
                             </p>
                             </div>
                             <div class="other-recipients" ng-show="showDescription">
-                            <h4>{{donor.name}} also donated to:</h4>
+                            <h4>{{donor.name}} donated to:</h4>
                             <ul class="other-recipients">
                                 <li ng-repeat="recipient in politicians[politicianIndex].donors[donorIndex].otherRecipients">
                                 {{recipient.name}}
