@@ -46,7 +46,7 @@ angular.module('opensunshine', ['ionic', 'ngSanitize'])
 
 .controller("Sunshine", function($scope, $http, $q, $window) {
 
-    var apiKey = '58576aebd9604aefa80483d098c365c7';
+    var apiKey = '';
 
     if (apiKey === '') {
         alert("You'll need an API key from data.influenceexplorer.com");
@@ -59,6 +59,11 @@ angular.module('opensunshine', ['ionic', 'ngSanitize'])
 
 
     $scope.donorDescription = function(donorID, politicianIndex, donorIndex) {
+
+        if (donorID == '') {
+            alert('No information for this donor');
+            return;
+        }
 
         var year = $scope.politician.year;
 
@@ -75,15 +80,12 @@ angular.module('opensunshine', ['ionic', 'ngSanitize'])
         if (year !== undefined) {
             otherRecipientsUrl += '&cycle=' + year;
         }
-        console.log(otherRecipientsUrl);
-
         //$scope.politicians[politicianIndex].donors[donorIndex] = {};
 
         $http.jsonp(organizationURL).success(function(organization) {
             $scope.loading = false;
 
             if (organization.metadata.bio !== undefined) {
-                console.log(organization.metadata.bio);
                 $scope.politicians[politicianIndex].donors[donorIndex].bio = organization.metadata.bio;
             }
             if (organization.metadata.parent_entity !== null) {
@@ -125,8 +127,6 @@ angular.module('opensunshine', ['ionic', 'ngSanitize'])
 
 
         $http.jsonp(politicianURL).success(function(politicians) {
-            console.log(politicians);
-            console.log(politicians.length);
             $scope.politicians = politicians;
 
             if (politicians.length < 1) {
@@ -137,8 +137,6 @@ angular.module('opensunshine', ['ionic', 'ngSanitize'])
 
             angular.forEach(politicians, function(politician) {
                 politician.name = politician.name.replace('(D)', '').replace('(R)', '');
-                console.log(politician.name);
-                console.log(politician.id);
                 politicianID = politician.id;
                 industriesURL = 'http://transparencydata.com/api/1.0/aggregates/pol/' + politicianID + '/contributors/industries.json?page=1&per_page=1000&apikey=' + apiKey + '&callback=JSON_CALLBACK';
 
@@ -152,20 +150,15 @@ angular.module('opensunshine', ['ionic', 'ngSanitize'])
                     donorsURL += '&cycle=' + year;
                 }
 
-                $http.jsonp(industriesURL).success(function(industries) {
-                    console.log('industries');
-                    console.log(industries);
+                $http.jsonp(industriesURL).success(function(industries) {   
                     politician.industries = industries;
                 }).error(function(data, status, headers, config) {
-                    alert("Error connecting to server");
+                    alert("No data found");
                     $scope.loading = false;
 
                 });
 
                 $http.jsonp(donorsURL).success(function(donors) {
-                    console.log('donors');
-                    console.log(donors);
-
                     politician.donors = donors;
                     $scope.loading = false;
                 }).error(function(data, status, headers, config) {
