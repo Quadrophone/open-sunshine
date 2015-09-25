@@ -46,7 +46,7 @@ angular.module('opensunshine', ['ionic', 'ngSanitize'])
 
 .controller("Sunshine", function($scope, $http, $q, $window) {
 
-    var apiKey = '5a6ec60e5859483b99cf33a9c2b7f967';
+    var apiKey = '';
 
     if (apiKey === '') {
         alert("You'll need an API key from data.influenceexplorer.com");
