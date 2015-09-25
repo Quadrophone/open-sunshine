@@ -52,7 +52,7 @@ h1 {
 }
 
 h1 i {
-  /*margin-right:1rem;*/
+  margin-right:1rem;
   margin-top:.25rem;
   color:#060402;
 
@@ -99,9 +99,16 @@ button[type=submit] {
   float: right;
   color:#060402!important;
 }
+button[type=submit]:active {
+  background:#E5AD06;
+}
 
-
-
+.list.politicians {
+  padding-bottom: 5rem;
+}
+form.list input {
+  font-size:1rem;
+}
 h2 {
   background: #F8C603;
   font-size: 1.8em;
@@ -117,6 +124,9 @@ h2 {
 h3.item-divider {
   font-size: 1.3em;
   font-weight: 700;
+}
+.item-divider:active {
+  background:#FECA2E;
 }
 
 .donors li, .industries li {
@@ -182,6 +192,10 @@ h3.item-divider {
   margin-top: .25em;
   display: inline-block;
 }
+.search-donor:active {
+    color: #E5AD06;
+
+}
 
 .donor-bio {
   width:100%;
@@ -193,6 +207,8 @@ h3.item-divider {
 .donor-bio p, .parent-entity p {
   display: block;
   padding-top:1rem;
+  font-size:1rem;
+  line-height: 1.4rem;
   float:none;
   clear:both;
   white-space: initial;
@@ -205,12 +221,13 @@ h3.item-divider {
 
 
 div.other-recipients {
-  font-size:14px;
+  font-size:1rem;
   margin-top:1em;
+  line-height: 1.4rem;
 }
 
 div.other-recipients h4 {
-  font-size:16px;
+  font-size:1.2rem;
   overflow: visible;
   white-space: initial;
 }
